@@ -11,8 +11,14 @@ $(document).ready(function(){
 		console.log("Connection is failed");
 	});
 	socket.on('message', function(message, callback){
-		console.log("A Message is received: ");
 		console.log(message);
+		if(message.type == 10){
+			$('#setNickname').modal('hide');
+		}
+		else if(message.type == 5){
+			var historicalText = $("#chatHistoryTextArea").val();
+			$("#chatHistoryTextArea").val(historicalText + message.sender + " " + message.chatMsg.chatMsg + "\n");			
+		}
 	});
 	socket.on('reconnecting', function(){
 		console.log("Reconnecting to Socket");
@@ -27,9 +33,16 @@ $(document).ready(function(){
 		console.log("Socket is disconnected");
 	});
 	socket.on('chatReady',function(data){
-
+		
 	});
 	$('#sendNicknameBtn').click(function(){
 		socket.emit('setNickname',{nickname: $('#inputNickname').val()});
 	});
+	$("#sendMsgBtn").click(function(){
+		socket.emit('sendChat',{chatMsg: $('#chatMsgTxtBox').val()});
+		var historicalText = $("#chatHistoryTextArea").val();
+		$("#chatHistoryTextArea").val(historicalText + "Me: " + $("#chatMsgTxtBox").val() + "\n");
+		$("#chatMsgTxtBox").val("");
+		return false;
+	})
 });
