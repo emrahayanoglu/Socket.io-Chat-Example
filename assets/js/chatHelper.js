@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	var socket = io.connect("http://localhost:8089");
+	var socket = io.connect("http://10.10.20.56:8089");
 	socket.on('connecting',function(){
 		console.log("Socket is connecting");
 	});
@@ -17,7 +17,18 @@ $(document).ready(function(){
 		}
 		else if(message.type == 5){
 			var historicalText = $("#chatHistoryTextArea").val();
-			$("#chatHistoryTextArea").val(historicalText + message.sender + " " + message.chatMsg.chatMsg + "\n");			
+			$("#chatHistoryTextArea").val(historicalText + message.sender + ":> " + message.chatMsg + "\n");			
+		}
+		else if(message.type == 11){
+			$("#onlineUsersTextArea").text("");
+			for(var i = 0; i < message.chatMsg.length; i++){
+				if(i == 0){
+					$("#onlineUsersTextArea").text($("#onlineUsersTextArea").text() + message.chatMsg[i].nickname);					
+				}
+				else{
+					$("#onlineUsersTextArea").text($("#onlineUsersTextArea").text() + "\n" + message.chatMsg[i].nickname);					
+				}
+			}
 		}
 	});
 	socket.on('reconnecting', function(){
@@ -40,8 +51,6 @@ $(document).ready(function(){
 	});
 	$("#sendMsgBtn").click(function(){
 		socket.emit('sendChat',{chatMsg: $('#chatMsgTxtBox').val()});
-		var historicalText = $("#chatHistoryTextArea").val();
-		$("#chatHistoryTextArea").val(historicalText + "Me: " + $("#chatMsgTxtBox").val() + "\n");
 		$("#chatMsgTxtBox").val("");
 		return false;
 	})
